@@ -114,7 +114,7 @@ def round_robin(iapaths, out_csv='results/results.csv'):
 if __name__=='__main__':
     import sys
     if len(sys.argv) < 2:
-        print('Usage: python tournament.py ia1.pl ia2.pl ia3.pl ...')
+        print('Usage: python tournament.py ia1.pl  ia2.pl ia3.pl ...')
         sys.exit(1)
     ias = sys.argv[1:]
     round_robin(ias)
