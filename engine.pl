@@ -80,4 +80,3 @@ transpose(Matrix, [Row|Rows]) :-
     transpose(Rest, Rows).
 remove_head([_|T], T).
 
-% Utilities to convert between column-major and row-major are intentionally simple here.

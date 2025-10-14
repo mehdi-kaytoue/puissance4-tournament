@@ -24,7 +24,7 @@ def ask_ai_move(ia_file, board, player, timeout=TIME_PER_MOVE):
     print ("Board term:", board_term)
     query = f"Board={board_term}, Joueur={player}, (joue_coup(Board, Joueur, C) -> format('~w',[C]); halt(2)), halt."
     print(query)
-    cmd = [SWIPL, '-s', ENGINE, '-s', ia_file, '-g', query]
+    cmd = [SWIPL, '-s', ia_file, '-s', ENGINE, '-g', query]
     print(cmd)
     try:
         p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
