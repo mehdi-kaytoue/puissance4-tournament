@@ -9,8 +9,10 @@ import json
 import time
 from pathlib import Path
 
+#SWIPL = '/Applications/SWI-Prolog.app/Contents/MacOS/swipl'  # path to swipl
 SWIPL = '/usr/bin/swipl'  # path to swipl
-ENGINE = 'engine.pl'
+
+ENGINE = 'engine/engine.pl'
 TIME_PER_MOVE = 4.0  # seconds
 
 def board_to_prolog(board):
