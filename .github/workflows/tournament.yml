@@ -60,3 +60,11 @@ jobs:
           git add results/tournament_results_*.csv
           git commit -m "Update tournament results [skip ci]" || echo "No changes to commit"
           git push
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
