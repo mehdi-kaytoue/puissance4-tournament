@@ -1,0 +1,53 @@
+name: Run Puissance 4 Tournament
+
+on:
+  push:
+    paths:
+      - 'ias/**.pl'
+      - '.github/workflows/tournament.yml'
+
+jobs:
+  run-tournament:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies (SWI-Prolog, build tools)
+        run: |
+          sudo apt-get update
+          # Installe SWI-Prolog
+          # sudo apt-get install -y swi-prolog #too heavy, don't need GUI
+          sudo apt-get install -y swi-prolog-nox
+          # (optionnel) outils utiles
+          # sudo apt-get install -y make build-essential
+
+      - name: Verify swipl and environment
+        run: |
+          which swipl || { echo "swipl not found"; exit 1; }
+          swipl --version
+          python3 --version
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas matplotlib pyyaml
+
+      - name: Run Tournament
+        env:
+          SWIPL: swipl
+        run: |
+          mkdir -p results
+          # Appel du script orchestrateur (adapte le chemin si besoin)
+          python3 tournament.py ias/*
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: tournament-results
+          path: results/
