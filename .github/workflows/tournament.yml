@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - 'ias/**.pl'
-      - 'orchestrator/**'
       - '.github/workflows/tournament.yml'
 
 jobs:
@@ -44,7 +43,7 @@ jobs:
         run: |
           mkdir -p results
           # Appel du script orchestrateur (adapte le chemin si besoin)
-          python3 orchestrator/tournament.py ias/*
+          python3 tournament.py ias/*
 
       - name: Upload results
         uses: actions/upload-artifact@v4
