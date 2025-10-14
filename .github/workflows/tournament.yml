@@ -44,7 +44,7 @@ jobs:
         run: |
           mkdir -p results
           # Appel du script orchestrateur (adapte le chemin si besoin)
-          python3 orchestrator/tournament.py --ias ias/ --output results/
+          python3 orchestrator/tournament.py --ias ias/* --output results/
 
       - name: Upload results
         uses: actions/upload-artifact@v4
