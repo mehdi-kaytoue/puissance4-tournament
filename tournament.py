@@ -99,7 +99,7 @@ def play_game(ia1, ia2, timeout_per_move=TIME_PER_MOVE, verbose=True):
             return 0, moves
         current = 3 - current
 
-def round_robin(iapaths, out_csv='results.csv'):
+def round_robin(iapaths, out_csv='results/results.csv'):
     rows = []
     pairs = list(itertools.permutations(iapaths,2))
     for a,b in pairs:
