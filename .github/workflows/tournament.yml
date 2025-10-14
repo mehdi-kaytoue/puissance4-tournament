@@ -17,7 +17,8 @@ jobs:
         run: |
           sudo apt-get update
           # Installe SWI-Prolog
-          sudo apt-get install -y swi-prolog
+          # sudo apt-get install -y swi-prolog #too heavy, don't need GUI
+          sudo apt-get install -y swi-prolog-nox
           # (optionnel) outils utiles
           sudo apt-get install -y make build-essential
 
