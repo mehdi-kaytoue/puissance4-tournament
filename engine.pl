@@ -1,17 +1,18 @@
  
 % engine.pl
 % Représentation : Board est une liste de 6 lignes, chaque ligne est une liste de 7 entiers (0 vide, 1, 2)
+% le bas est la ligne 5, le haut la ligne 0
 
 :- module(engine, [valid_moves/2, apply_move/4, winner/2, display_board/1]).
 
 % valid_moves(+Board, -Cols)
 valid_moves(Board, Cols) :-
     nth0(0, Board, TopRow),
-    findall(C, (nth0(C, TopRow, V), V == 0), Cols).
+    findall(C, (nth0(C, TopRow, V), V == 0), Cols). %findall poru collecter les réponses d'un but
 
 % apply_move(+Board, +Col, +Player, -NewBoard)
 apply_move(Board, Col, Player, NewBoard) :-
-    % Drop in column Col (0-based) into lowest empty row (bottom is row 5)
+    % on joue le coup dans la colonne Col sur le premier endroit libre
     transpose(Board, TBoard),
     nth0(Col, TBoard, ColList),
     drop_into_column(ColList, Player, NewColList),
