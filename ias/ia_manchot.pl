@@ -1,6 +1,6 @@
 % ia_manchot.pl
 :- module(ia_manchot, [joue_coup/3]).
-:- use_module('../engine').
+:- use_module('engine').
 :- use_module(library(random)).
 
 % IA Bandit Manchot :

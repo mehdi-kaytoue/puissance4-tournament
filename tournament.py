@@ -11,7 +11,7 @@ from pathlib import Path
 
 SWIPL = 'swipl'  # path to swipl
 
-ENGINE = 'engine.pl'
+ENGINE = 'ias/engine.pl'
 TIME_PER_MOVE = 4.0  # seconds
 
 def board_to_prolog(board):
