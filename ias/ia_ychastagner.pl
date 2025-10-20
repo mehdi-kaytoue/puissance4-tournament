@@ -137,60 +137,12 @@ test_tournament_speed :-
         writeln('⚠️ ATTENTION: Trop lent pour le tournoi! Changez d\'IA.')
     ).
 
-% ========== UTILISATION POUR LE TOURNOI ==========
-%
-% Pour utiliser ce fichier dans le tournoi Python :
-% 1. Assurez-vous que le prédicat joue_coup/3 est défini (c'est fait ici)
-% 2. Choisissez votre IA dans select_ia_for_tournament/3 (ligne 31)
-% 3. Testez avec : ?- test_tournament_interface.
-% 4. Vérifiez la vitesse : ?- test_tournament_speed.
-% 5. Lancez le tournoi : python tournament.py main.pl autre_ia.pl ...
-%
-% ⚠️ IMPORTANT : Le tournoi donne 4 secondes par coup maximum !
-%    Recommandations :
-%    - ia_minimax : ✅ Rapide (~1 sec), bon niveau
-%    - ia_mcts : ✅ OK (~2-3 sec), bon niveau
-%    - ia_expert_fast : ⚠️ Risqué (5-20 sec selon profondeur)
-%    - ia_expert : ❌ Trop lent (30 sec - 2 min)
-
-% Si le tournoi utilise un format 2D (tableau de tableaux), utilisez :
-%
-% 1. Pour convertir les formats :
-%    ?- board2d_to_1d([[_,_,_,_,_,_,_],...], Board1D).
-%    ?- board1d_to_2d([_,_,_,...], Board2D).
-%
-% 2. Pour jouer un coup depuis un board 2D :
-%    ?- play_tournament_move(Board2D, 'x', ia_expert_fast, NewBoard2D, Column).
-%    (Retourne le nouveau board et la colonne jouée)
-%
-% 3. Pour tester les conversions :
-%    ?- run_all_tests.
-%
-% 4. Choisir l'IA pour le tournoi (modifier dans le code) :
-%    - ia_expert_fast  : Recommandé (5-20 sec/coup, très fort)
-%    - ia_expert       : Maximum force (1-3 min/coup)
-%    - ia_minimax      : Rapide (1 sec/coup, bon niveau)
-%    - ia_mcts         : Moyen (2-3 sec/coup, bon niveau)
-%    - ia_random       : Très rapide (< 0.1 sec/coup, faible)
-
 % ========== 5 INTELLIGENCES ARTIFICIELLES DISPONIBLES ==========
 % 1. ia_random      : Joue aléatoirement (avec tactiques de base)
 % 2. ia_minimax     : Minimax avec Alpha-Beta (profondeur 6) - ~1 seconde/coup
 % 3. ia_mcts        : Monte Carlo Tree Search (1000 simulations) - ~2-3 secondes/coup
 % 4. ia_expert_fast : IA Expert rapide (profondeur 5-7) - ~5-10 secondes/coup ⭐ PAR DÉFAUT
-% 5. ia_expert      : IA Expert complète (profondeur 8-10) - ~30 sec-2 min/coup ⚠️ TRÈS LENT
-%
-% ⚠️ ATTENTION : ia_expert peut être TRÈS LENTE (30 sec - 2 min par coup au début)
-%    Recommandation : Utilisez ia_expert_fast pour des parties fluides
-%
-% IA EXPERT inclut :
-% - Base d'ouvertures optimales
-% - Profondeur adaptative (8-10 selon la phase de jeu)
-% - Détection de cases empoisonnées
-% - Évaluation de connectivité (pions adjacents)
-% - Détection de structures gagnantes (formes en 7, doubles diagonales)
-% - Contrôle renforcé du centre
-% - Toutes les tactiques : victoire, blocage, fourchettes, etc.
+% 5. ia_expert      : IA Expert complète (profondeur 8-10) - ~30 sec-2 min/c
 
 % STRATÉGIES TACTIQUES IMPLÉMENTÉES (toutes les IA) :
 % 1. Victoire immédiate : Gagner si possible
