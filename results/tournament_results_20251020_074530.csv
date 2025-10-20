@@ -1,0 +1,7 @@
+ia1,ia2,winner,moves
+ia_manchot.pl,ia_random.pl,ia_manchot.pl,7
+ia_manchot.pl,ia_ychastagner.pl,ia_manchot.pl,7
+ia_random.pl,ia_manchot.pl,ia_manchot.pl,8
+ia_random.pl,ia_ychastagner.pl,ia_ychastagner.pl,14
+ia_ychastagner.pl,ia_manchot.pl,ia_ychastagner.pl,7
+ia_ychastagner.pl,ia_random.pl,ia_ychastagner.pl,15

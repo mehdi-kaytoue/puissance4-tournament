@@ -1,0 +1,13 @@
+ia1,ia2,winner,moves
+ia_lmaret.pl,ia_manchot.pl,ia_manchot.pl,10
+ia_lmaret.pl,ia_random.pl,ia_lmaret.pl,7
+ia_lmaret.pl,ia_ychastagner.pl,ia_lmaret.pl,7
+ia_manchot.pl,ia_lmaret.pl,ia_manchot.pl,7
+ia_manchot.pl,ia_random.pl,ia_manchot.pl,7
+ia_manchot.pl,ia_ychastagner.pl,ia_manchot.pl,7
+ia_random.pl,ia_lmaret.pl,ia_random.pl,19
+ia_random.pl,ia_manchot.pl,ia_manchot.pl,8
+ia_random.pl,ia_ychastagner.pl,ia_ychastagner.pl,14
+ia_ychastagner.pl,ia_lmaret.pl,ia_ychastagner.pl,11
+ia_ychastagner.pl,ia_manchot.pl,ia_ychastagner.pl,7
+ia_ychastagner.pl,ia_random.pl,ia_ychastagner.pl,15
