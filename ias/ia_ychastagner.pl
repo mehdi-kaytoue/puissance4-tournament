@@ -1,49 +1,27 @@
 % Puissance 4 (Connect Four) en Prolog
 % Le plateau est représenté par une liste de 42 éléments (7 colonnes x 6 lignes)
 % Les indices vont de 0 à 41, organisés ligne par ligne de bas en haut:
-% Ligne 0 (bas):    0  1  2  3  4  5  6
-% Ligne 1:          7  8  9 10 11 12 13
-% Ligne 2:         14 15 16 17 18 19 20
-% Ligne 3:         21 22 23 24 25 26 27
-% Ligne 4:         28 29 30 31 32 33 34
-% Ligne 5 (haut):  35 36 37 38 39 40 41
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% INTERFACE POUR LE TOURNOI
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Le tournoi attend le prédicat : joue_coup(+Board, +Joueur, -Colonne)
-% où Board est une liste de 6 lignes (format 2D avec 0=vide, 1=joueur1, 2=joueur2)
-% et Joueur est 1 ou 2
 
 %%%% PRÉDICAT PRINCIPAL POUR LE TOURNOI
 joue_coup(BoardTournoi, Joueur, Colonne) :-
-    % 1. Convertir le format du tournoi vers notre format interne
     convert_tournament_to_internal(BoardTournoi, Joueur, Board1D, Player),
-    
-    % 2. CHOISIR QUELLE IA UTILISER (modifiez ici selon vos besoins)
     select_ia_for_tournament(Board1D, Colonne, Player).
 
 %%%% Sélection de l'IA pour le tournoi
-% MODIFIEZ ICI pour changer d'IA pour le tournoi
 select_ia_for_tournament(Board, Column, Player) :-
-    % Option recommandée : Minimax (rapide, < 1 sec)
-    % ia_minimax(Board, Column, Player).
-    
-    % Autres options :
+    %ia_minimax(Board, Column, Player).
     ia_expert_fast(Board, Column, Player).  % Plus fort mais 5-20 sec/coup
     % ia_mcts(Board, Column, Player).         % Moyen, 2-3 sec/coup
     % ia_random(Board, Column, Player).       % Très rapide mais faible
 
-%%%% CONVERSION : Format tournoi 2D (0/1/2) → Format interne 1D (_/'x'/'o')
 convert_tournament_to_internal(Board2D, Joueur, Board1D, Player) :-
-    % 1. Inverser l'ordre (tournoi : ligne 0 = haut, nous : indices 0-6 = bas)
     reverse(Board2D, ReversedBoard2D),
     flatten(ReversedBoard2D, FlatBoardReversed),
-    
-    % 2. Convertir les valeurs 0/1/2 en _/'x'/'o'
     convert_tournament_values(FlatBoardReversed, Board1D),
-    
-    % 3. Convertir le numéro de joueur (1/2) en symbole ('x'/'o')
     (Joueur = 1 -> Player = 'x' ; Player = 'o').
 
 %%%% Convertir les valeurs du tournoi (0/1/2) vers notre format (_/'x'/'o')
@@ -55,149 +33,17 @@ convert_tournament_values([H|T], [H2|T2]) :-
     ),
     convert_tournament_values(T, T2).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% TESTS POUR VÉRIFIER LA COMPATIBILITÉ AVEC LE TOURNOI
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-test_tournament_interface :-
-    writeln(''),
-    writeln('╔════════════════════════════════════════╗'),
-    writeln('║   TEST INTERFACE TOURNOI              ║'),
-    writeln('╚════════════════════════════════════════╝'),
-    writeln(''),
-    
-    % Test 1 : Board vide
-    writeln('=== Test 1 : Board vide ==='),
-    BoardVide = [
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0]
-    ],
-    joue_coup(BoardVide, 1, Col1),
-    format('Premier coup (joueur 1): colonne ~w~n', [Col1]),
-    writeln('✓ Test 1 réussi'),
-    writeln(''),
-    
-    % Test 2 : Board avec quelques coups
-    writeln('=== Test 2 : Board avec coups ==='),
-    BoardAvecCoups = [
-        [0,0,0,0,0,0,0],  % Ligne 0 (haut)
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,2,0,0,0],  % Un 2 au centre
-        [1,0,0,1,0,0,0]   % Ligne 5 (bas) - deux 1
-    ],
-    writeln('Board (format tournoi):'),
-    forall(member(Row, BoardAvecCoups), 
-           (write('  '), writeln(Row))),
-    joue_coup(BoardAvecCoups, 2, Col2),
-    format('Joueur 2 joue: colonne ~w~n', [Col2]),
-    writeln('✓ Test 2 réussi'),
-    writeln(''),
-    
-    % Test 3 : Vérifier la conversion
-    writeln('=== Test 3 : Vérification conversion ==='),
-    convert_tournament_to_internal(BoardAvecCoups, 1, Board1D, Player),
-    writeln('Board converti (format interne 1D):'),
-    write('  '), writeln(Board1D),
-    format('Joueur converti: ~w~n', [Player]),
-    writeln('✓ Test 3 réussi'),
-    writeln(''),
-    
-    writeln('✓ Tous les tests passés - Interface tournoi opérationnelle!').
-
-test_tournament_speed :-
-    writeln('=== Test de vitesse (10 coups sur board vide) ==='),
-    BoardVide = [
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0]
-    ],
-    get_time(Start),
-    forall(between(1, 10, N), (
-        joue_coup(BoardVide, 1, _),
-        (N mod 2 =:= 0 -> write('.') ; true)
-    )),
-    get_time(End),
-    Duration is End - Start,
-    AvgTime is Duration / 10,
-    writeln(''),
-    format('Temps total: ~2f secondes~n', [Duration]),
-    format('Temps moyen par coup: ~2f secondes~n', [AvgTime]),
-    (AvgTime < 30.0 ->
-        writeln('✓ Performance OK pour le tournoi (< 60 sec/coup)')
-    ;
-        writeln('⚠️ ATTENTION: Trop lent pour le tournoi! Changez d\'IA.')
-    ).
-
-% ========== UTILISATION POUR LE TOURNOI ==========
-%
-% Pour utiliser ce fichier dans le tournoi Python :
-% 1. Assurez-vous que le prédicat joue_coup/3 est défini (c'est fait ici)
-% 2. Choisissez votre IA dans select_ia_for_tournament/3 (ligne 31)
-% 3. Testez avec : ?- test_tournament_interface.
-% 4. Vérifiez la vitesse : ?- test_tournament_speed.
-% 5. Lancez le tournoi : python tournament.py main.pl autre_ia.pl ...
-%
-% ⚠️ IMPORTANT : Le tournoi donne 4 secondes par coup maximum !
-%    Recommandations :
-%    - ia_minimax : ✅ Rapide (~1 sec), bon niveau
-%    - ia_mcts : ✅ OK (~2-3 sec), bon niveau
-%    - ia_expert_fast : ⚠️ Risqué (5-20 sec selon profondeur)
-%    - ia_expert : ❌ Trop lent (30 sec - 2 min)
-
-% Si le tournoi utilise un format 2D (tableau de tableaux), utilisez :
-%
-% 1. Pour convertir les formats :
-%    ?- board2d_to_1d([[_,_,_,_,_,_,_],...], Board1D).
-%    ?- board1d_to_2d([_,_,_,...], Board2D).
-%
-% 2. Pour jouer un coup depuis un board 2D :
-%    ?- play_tournament_move(Board2D, 'x', ia_expert_fast, NewBoard2D, Column).
-%    (Retourne le nouveau board et la colonne jouée)
-%
-% 3. Pour tester les conversions :
-%    ?- run_all_tests.
-%
-% 4. Choisir l'IA pour le tournoi (modifier dans le code) :
-%    - ia_expert_fast  : Recommandé (5-20 sec/coup, très fort)
-%    - ia_expert       : Maximum force (1-3 min/coup)
-%    - ia_minimax      : Rapide (1 sec/coup, bon niveau)
-%    - ia_mcts         : Moyen (2-3 sec/coup, bon niveau)
-%    - ia_random       : Très rapide (< 0.1 sec/coup, faible)
-
 % ========== 5 INTELLIGENCES ARTIFICIELLES DISPONIBLES ==========
 % 1. ia_random      : Joue aléatoirement (avec tactiques de base)
 % 2. ia_minimax     : Minimax avec Alpha-Beta (profondeur 6) - ~1 seconde/coup
 % 3. ia_mcts        : Monte Carlo Tree Search (1000 simulations) - ~2-3 secondes/coup
 % 4. ia_expert_fast : IA Expert rapide (profondeur 5-7) - ~5-10 secondes/coup ⭐ PAR DÉFAUT
 % 5. ia_expert      : IA Expert complète (profondeur 8-10) - ~30 sec-2 min/coup ⚠️ TRÈS LENT
-%
-% ⚠️ ATTENTION : ia_expert peut être TRÈS LENTE (30 sec - 2 min par coup au début)
-%    Recommandation : Utilisez ia_expert_fast pour des parties fluides
-%
-% IA EXPERT inclut :
-% - Base d'ouvertures optimales
-% - Profondeur adaptative (8-10 selon la phase de jeu)
-% - Détection de cases empoisonnées
-% - Évaluation de connectivité (pions adjacents)
-% - Détection de structures gagnantes (formes en 7, doubles diagonales)
-% - Contrôle renforcé du centre
-% - Toutes les tactiques : victoire, blocage, fourchettes, etc.
 
-% STRATÉGIES TACTIQUES IMPLÉMENTÉES (toutes les IA) :
+% STRATÉGIES TACTIQUES IMPLÉMENTÉES pour toutes les IA :
 % 1. Victoire immédiate : Gagner si possible
 % 2. Blocage défensif : Bloquer une victoire adverse
-% 3. FOURCHETTE (DOUBLE MENACE) : Créer 2+ menaces simultanées
-%    → L'adversaire ne peut bloquer qu'une menace
-%    → On gagne au coup suivant avec l'autre menace
+% 3. FOURCHETTE : Créer 2+ menaces simultanées
 % 4. Blocage de fourchette : Empêcher l'adversaire de créer une fourchette
 % 5. Filtrage des coups suicidaires : Ne jamais offrir la victoire
 % 6. Évaluation heuristique : Patterns, centre, menaces, connectivité
@@ -270,12 +116,11 @@ checkDiagonalDesc(Board, P) :-
 isBoardFull([]).
 isBoardFull([H|T]) :- nonvar(H), isBoardFull(T).
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% INTELLIGENCE ARTIFICIELLE
+%%%% IA Random
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%% IA Random: joue aléatoirement dans une colonne qui n'est pas pleine
-% Même l'IA random devrait gagner si elle peut, et bloquer si nécessaire
 ia_random(Board, Column, Player) :- 
     % 1. Coup gagnant ?
     (findWinningMove(Board, Player, WinMove) ->
@@ -295,10 +140,11 @@ ia_random(Board, Column, Player) :-
         random_member(Column, SafeMoves)
     ).
 
-%%%% IA Minimax avec élagage Alpha-Beta
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% IA Minimax Alpha-Beta
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 ia_minimax(Board, Column, Player) :-
-    write('🎯 IA Minimax réfléchit... '),
-    flush_output,
     MaxDepth = 6,
     % 1. Coup gagnant immédiat ?
     (findWinningMove(Board, Player, WinMove) ->
@@ -393,7 +239,6 @@ findBestScoreHelper([_-Score|Rest], CurrentBest, BestScore) :-
         findBestScoreHelper(Rest, CurrentBest, BestScore)
     ).
 
-%%%% Algorithme Minimax avec élagage Alpha-Beta
 minimax(Board, Player, Depth, Alpha, Beta, BestColumn, BestScore) :-
     allPossibleColumns(Board, Moves),
     Moves \= [],
@@ -579,10 +424,11 @@ countPieces(List, Player, Count) :-
         length(PlayerPieces, Count)
     ).
 
-%%%% IA Monte Carlo Tree Search (MCTS)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% IA MCTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 ia_mcts(Board, Column, Player) :-
-    write('🎲 IA MCTS réfléchit... '),
-    flush_output,
     % 1. Coup gagnant immédiat ?
     (findWinningMove(Board, Player, WinMove) ->
         Column = WinMove
@@ -687,28 +533,21 @@ findBestWinRateValue(Stats, BestRate) :-
     (Rates = [] -> BestRate = 0 ; max_list(Rates, BestRate)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% IA EXPERT - L'IA ULTIME
+%%%% IA EXPERT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ia_expert(Board, Column, Player) :-
-    writeln('🤖 IA Expert réfléchit...'),
     (findWinningMove(Board, Player, WinMove) ->
-        writeln('   ✓ Coup gagnant trouvé !'),
         Column = WinMove
     ; changePlayer(Player, Opponent), findWinningMove(Board, Opponent, BlockMove) ->
-        writeln('   ✓ Blocage de victoire adverse !'),
         Column = BlockMove
     ; useOpeningBook(Board, Player, OpeningMove) ->
-        writeln('   ✓ Utilisation de la base d\'ouvertures'),
         Column = OpeningMove
     ; findForkMove(Board, Player, ForkMove) ->
-        writeln('   ✓ Création de fourchette !'),
         Column = ForkMove
     ; changePlayer(Player, Opponent), findForkMove(Board, Opponent, BlockFork) ->
-        writeln('   ✓ Blocage de fourchette adverse !'),
         Column = BlockFork
     ;
-        writeln('   → Recherche approfondie en cours...'),
         expertSearch(Board, Player, Column)
     ).
 
@@ -733,17 +572,8 @@ expertSearch(Board, Player, Column) :-
     (TotalMoves < 10 -> Depth = 8 ;
      TotalMoves < 25 -> Depth = 9 ;
      Depth = 10),
-    format('   → Profondeur de recherche: ~w niveaux~n', [Depth]),
     getNonPoisonedMoves(Board, Player, SafeMoves),
-    length(SafeMoves, NumMoves),
-    format('   → Évaluation de ~w coups possibles~n', [NumMoves]),
-    format('   → Chaque coup prend 1-3 minutes en profondeur ~w~n', [Depth]),
-    writeln('   → Calcul en cours (un point = 1 coup évalué):'),
-    write('      '),
-    flush_output,
-    evaluateMovesExpertWithProgress(SafeMoves, Board, Player, Depth, 1, NumMoves, ScoredMoves),
-    writeln(''),
-    writeln('   ✓ Tous les coups évalués !'),
+    evaluateMovesExpert(SafeMoves, Board, Player, Depth, ScoredMoves),
     findBestScore(ScoredMoves, BestScore),
     findall(Col, member(Col-BestScore, ScoredMoves), BestMoves),
     (member(3, BestMoves) -> Column = 3 ;
@@ -751,27 +581,19 @@ expertSearch(Board, Player, Column) :-
      member(4, BestMoves) -> Column = 4 ;
      random_member(Column, BestMoves)).
 
-%%%% Évalue les coups avec indicateur de progression détaillé
-evaluateMovesExpertWithProgress([], _, _, _, _, _, []).
-evaluateMovesExpertWithProgress([Move|Moves], Board, Player, Depth, Current, Total, [Move-Score|Rest]) :-
-    format('~n   → Évaluation coup ~w/~w (colonne ~w)...~n', [Current, Total, Move]),
-    write('      Exploration: '),
-    flush_output,
-    % Initialiser le compteur de nœuds
-    retractall(nodes_explored(_)),
-    assert(nodes_explored(0)),
+%%%% Évalue les coups avec la version expert (sans affichage)
+evaluateMovesExpert([], _, _, _, []).
+evaluateMovesExpert([Move|Moves], Board, Player, Depth, [Move-Score|Rest]) :-
     simulateMove(Board, Move, Player, NewBoard),
     changePlayer(Player, Opponent),
     NewDepth is Depth - 1,
+    retractall(nodes_explored(_)),
+    assert(nodes_explored(0)),
     minimaxExpertWithProgress(NewBoard, Opponent, NewDepth, -10000, 10000, _, OpponentScore),
     Score is -OpponentScore,
-    nodes_explored(FinalNodes),
-    format('~n      ✓ Coup ~w évalué (~w positions explorées)~n', [Move, FinalNodes]),
-    flush_output,
-    NextCurrent is Current + 1,
-    evaluateMovesExpertWithProgress(Moves, Board, Player, Depth, NextCurrent, Total, Rest).
+    evaluateMovesExpert(Moves, Board, Player, Depth, Rest).
 
-%%%% Minimax avec affichage de progression
+%%%% Minimax avec compteur de progression (sans affichage)
 minimaxExpertWithProgress(Board, Player, Depth, Alpha, Beta, BestColumn, BestScore) :-
     allPossibleColumns(Board, Moves),
     Moves \= [],
@@ -779,15 +601,11 @@ minimaxExpertWithProgress(Board, Player, Depth, Alpha, Beta, BestColumn, BestSco
 
 alphabetaExpertWithProgress([], _, _, _, _, _, BestColumn, BestScore, BestColumn, BestScore) :- !.
 alphabetaExpertWithProgress([Move|Moves], Board, Player, Depth, Alpha, Beta, TempBest, TempScore, BestColumn, BestScore) :-
-    % Incrémenter et afficher la progression tous les 5000 nœuds
+    % Incrémenter le compteur (sans affichage)
     nodes_explored(N),
     N1 is N + 1,
     retract(nodes_explored(N)),
     assert(nodes_explored(N1)),
-    (N1 mod 5000 =:= 0 -> 
-        write('.'),
-        flush_output
-    ; true),
     
     simulateMove(Board, Move, Player, NewBoard),
     (   (Depth =< 0 ; winner(NewBoard, _) ; isBoardFull(NewBoard)) ->
@@ -977,30 +795,21 @@ evaluateColumnControl(Board, Player, Score) :-
     Score is Center * 3 + Left * 2 + Right * 2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% IA EXPERT FAST - Version rapide de l'IA Expert
+%%%% IA EXPERT FAST
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Même algorithme que ia_expert mais avec profondeur réduite
-% Recommandé pour des parties plus rapides (5-10 secondes par coup)
 
 ia_expert_fast(Board, Column, Player) :-
-    writeln('⚡ IA Expert Fast réfléchit...'),
     (findWinningMove(Board, Player, WinMove) ->
-        writeln('   ✓ Coup gagnant trouvé !'),
         Column = WinMove
     ; changePlayer(Player, Opponent), findWinningMove(Board, Opponent, BlockMove) ->
-        writeln('   ✓ Blocage de victoire adverse !'),
         Column = BlockMove
     ; useOpeningBook(Board, Player, OpeningMove) ->
-        writeln('   ✓ Utilisation de la base d\'ouvertures'),
         Column = OpeningMove
     ; findForkMove(Board, Player, ForkMove) ->
-        writeln('   ✓ Création de fourchette !'),
         Column = ForkMove
     ; changePlayer(Player, Opponent), findForkMove(Board, Opponent, BlockFork) ->
-        writeln('   ✓ Blocage de fourchette adverse !'),
         Column = BlockFork
     ;
-        writeln('   → Recherche rapide en cours...'),
         expertSearchFast(Board, Player, Column)
     ).
 
@@ -1011,17 +820,8 @@ expertSearchFast(Board, Player, Column) :-
     (TotalMoves < 10 -> Depth = 5 ;
      TotalMoves < 25 -> Depth = 6 ;
      Depth = 7),
-    format('   → Profondeur de recherche: ~w niveaux~n', [Depth]),
     getNonPoisonedMoves(Board, Player, SafeMoves),
-    length(SafeMoves, NumMoves),
-    format('   → Évaluation de ~w coups possibles~n', [NumMoves]),
-    format('   → Chaque coup prend 5-20 secondes en profondeur ~w~n', [Depth]),
-    writeln('   → Calcul en cours (un point = 1 coup évalué):'),
-    write('      '),
-    flush_output,
-    evaluateMovesExpertFastWithProgress(SafeMoves, Board, Player, Depth, 1, NumMoves, ScoredMoves),
-    writeln(''),
-    writeln('   ✓ Tous les coups évalués !'),
+    evaluateMovesExpertFast(SafeMoves, Board, Player, Depth, ScoredMoves),
     findBestScore(ScoredMoves, BestScore),
     findall(Col, member(Col-BestScore, ScoredMoves), BestMoves),
     (member(3, BestMoves) -> Column = 3 ;
@@ -1029,13 +829,9 @@ expertSearchFast(Board, Player, Column) :-
      member(4, BestMoves) -> Column = 4 ;
      random_member(Column, BestMoves)).
 
-%%%% Évalue les coups avec indicateur de progression (version Fast)
-evaluateMovesExpertFastWithProgress([], _, _, _, _, _, []).
-evaluateMovesExpertFastWithProgress([Move|Moves], Board, Player, Depth, Current, Total, [Move-Score|Rest]) :-
-    format('~n   → Évaluation coup ~w/~w (colonne ~w)...~n', [Current, Total, Move]),
-    write('      Exploration: '),
-    flush_output,
-    % Initialiser le compteur de nœuds
+%%%% Évalue les coups (version Fast sans affichage)
+evaluateMovesExpertFast([], _, _, _, []).
+evaluateMovesExpertFast([Move|Moves], Board, Player, Depth, [Move-Score|Rest]) :-
     retractall(nodes_explored(_)),
     assert(nodes_explored(0)),
     simulateMove(Board, Move, Player, NewBoard),
@@ -1043,35 +839,17 @@ evaluateMovesExpertFastWithProgress([Move|Moves], Board, Player, Depth, Current,
     NewDepth is Depth - 1,
     minimaxExpertWithProgress(NewBoard, Opponent, NewDepth, -10000, 10000, _, OpponentScore),
     Score is -OpponentScore,
-    nodes_explored(FinalNodes),
-    format('~n      ✓ Coup ~w évalué (~w positions explorées)~n', [Move, FinalNodes]),
-    flush_output,
-    NextCurrent is Current + 1,
-    evaluateMovesExpertFastWithProgress(Moves, Board, Player, Depth, NextCurrent, Total, Rest).
+    evaluateMovesExpertFast(Moves, Board, Player, Depth, Rest).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% CONVERSION DE FORMATS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%% Convertit un tableau 2D (liste de lignes) en tableau 1D (liste plate)
-% Format 2D : [[Ligne0], [Ligne1], [Ligne2], [Ligne3], [Ligne4], [Ligne5]]
-% Format 1D : [Case0, Case1, ..., Case41]
-% 
-% Exemple :
-% ?- board2d_to_1d([[a,b,c,d,e,f,g], [h,i,j,k,l,m,n], ...], Board1D).
-% Board1D = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,...]
-
+%%%% Convertit un tableau 2D en tableau 1D
 board2d_to_1d(Board2D, Board1D) :-
     flatten(Board2D, Board1D).
 
 %%%% Convertit un tableau 1D en tableau 2D
-% Format 1D : [Case0, Case1, ..., Case41]
-% Format 2D : [[Ligne0], [Ligne1], [Ligne2], [Ligne3], [Ligne4], [Ligne5]]
-%
-% Exemple :
-% ?- board1d_to_2d([a,b,c,d,e,f,g,h,i,j,k,l,m,n,...], Board2D).
-% Board2D = [[a,b,c,d,e,f,g], [h,i,j,k,l,m,n], ...]
-
 board1d_to_2d(Board1D, Board2D) :-
     split_into_rows(Board1D, Board2D).
 
@@ -1086,189 +864,16 @@ split_into_rows(Board1D, [Row|RestRows]) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%% Convertir board avec variables (_) en board avec espaces (' ')
-% Votre format → Format binôme
 board_var_to_space([], []).
 board_var_to_space([H|T], [H2|T2]) :-
     (var(H) -> H2 = ' ' ; H2 = H),
     board_var_to_space(T, T2).
 
 %%%% Convertir board avec espaces (' ') en board avec variables (_)
-% Format binôme → Votre format
 board_space_to_var([], []).
 board_space_to_var([H|T], [H2|T2]) :-
     (H == ' ' -> true ; H2 = H),
     board_space_to_var(T, T2).
-
-%%%% Wrapper pour appeler l'IA du binôme avec conversion de format
-% Convertit le board, appelle l'IA, retourne le résultat
-%
-% Exemple: call_binome_ia(ch_ia, Board, Column, Player)
-
-call_binome_ia(IAName, BoardVar, Column, Player) :-
-    % 1. Convertir le board (variables → espaces)
-    board_var_to_space(BoardVar, BoardSpace),
-    
-    % 2. Appeler l'IA du binôme avec le format espaces
-    call(IAName, BoardSpace, Column, Player).
-
-%%%% Adaptateur spécifique pour ch_ia
-ch_ia_adapted(Board, Column, Player) :-
-    call_binome_ia(ch_ia, Board, Column, Player).
-
-%%%% Adaptateur spécifique pour ch_monteCarloIA  
-ch_monteCarloIA_adapted(Board, Player, Column) :-
-    call_binome_ia(ch_monteCarloIA, Board, Column, Player).
-
-%%%% Interface pour le tournoi : Joue un coup à partir d'un board 2D
-% Utilise l'IA sélectionnée et retourne le board 2D mis à jour
-%
-% Exemple d'utilisation :
-% ?- play_tournament_move([[_,_,_,_,_,_,_],[_,_,_,_,_,_,_],...], 'x', ia_expert_fast, NewBoard2D, Column).
-
-play_tournament_move(Board2D, Player, IAName, NewBoard2D, Column) :-
-    % 1. Convertir le board 2D en 1D
-    board2d_to_1d(Board2D, Board1D),
-    
-    % 2. Appeler l'IA choisie
-    call(IAName, Board1D, Column, Player),
-    
-    % 3. Jouer le coup sur le board 1D
-    findLowestRow(Board1D, Column, Row),
-    Index is Row * 7 + Column,
-    copy_term(Board1D, NewBoard1D),
-    nth0(Index, NewBoard1D, Player),
-    
-    % 4. Reconvertir en 2D
-    board1d_to_2d(NewBoard1D, NewBoard2D).
-
-%%%% Wrapper simplifié pour le tournoi avec IA par défaut
-% Utilise ia_expert_fast par défaut (bon compromis vitesse/force)
-%
-% Exemple :
-% ?- play_tournament_move_default([[_,_,_,_,_,_,_],...], 'x', NewBoard2D, Column).
-
-play_tournament_move_default(Board2D, Player, NewBoard2D, Column) :-
-    play_tournament_move(Board2D, Player, ia_expert_fast, NewBoard2D, Column).
-
-%%%% Vérifier si une position 2D est gagnante
-check_winner_2d(Board2D, Winner) :-
-    board2d_to_1d(Board2D, Board1D),
-    winner(Board1D, Winner).
-
-%%%% Afficher un board 2D
-display_board_2d(Board2D) :-
-    board2d_to_1d(Board2D, Board1D),
-    retractall(board(_)),
-    assert(board(Board1D)),
-    displayBoard,
-    retract(board(Board1D)).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% TESTS ET EXEMPLES DE CONVERSION
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%% Test de conversion 2D -> 1D
-test_conversion_2d_to_1d :-
-    % Créer un board 2D de test
-    Board2D = [
-        [a, b, c, d, e, f, g],  % Ligne 0 (bas)
-        [h, i, j, k, l, m, n],  % Ligne 1
-        [o, p, q, r, s, t, u],  % Ligne 2
-        [v, w, x, y, z, 1, 2],  % Ligne 3
-        [3, 4, 5, 6, 7, 8, 9],  % Ligne 4
-        [_, _, _, _, _, _, _]   % Ligne 5 (haut)
-    ],
-    board2d_to_1d(Board2D, Board1D),
-    writeln('=== Test conversion 2D -> 1D ==='),
-    writeln('Board 2D:'),
-    writeln(Board2D),
-    writeln('Board 1D:'),
-    writeln(Board1D),
-    writeln('✓ Test réussi si Board1D = [a,b,c,d,e,f,g,h,i,j,k,l,m,n,...]').
-
-%%%% Test de conversion 1D -> 2D
-test_conversion_1d_to_2d :-
-    % Créer un board 1D de test
-    length(Board1D, 42),
-    % Remplir avec des valeurs de test
-    numlist(0, 41, Board1D),
-    board1d_to_2d(Board1D, Board2D),
-    writeln('=== Test conversion 1D -> 2D ==='),
-    writeln('Board 1D:'),
-    writeln(Board1D),
-    writeln('Board 2D:'),
-    writeln(Board2D),
-    writeln('✓ Test réussi si Board2D = [[0,1,2,3,4,5,6],[7,8,9,...]...]').
-
-%%%% Test complet : conversion aller-retour
-test_conversion_roundtrip :-
-    writeln('=== Test conversion aller-retour ==='),
-    % Créer un board 2D initial
-    Board2D_Initial = [
-        [_,_,_,_,_,_,_],
-        [_,_,_,_,_,_,_],
-        [_,_,_,'x',_,_,_],
-        [_,_,'o','x',_,_,_],
-        [_,'x','o','x','o',_,_],
-        ['o','x','o','o','x','x','o']
-    ],
-    write('Board 2D initial: '), writeln(Board2D_Initial),
-    
-    % Conversion 2D -> 1D
-    board2d_to_1d(Board2D_Initial, Board1D),
-    write('Board 1D: '), writeln(Board1D),
-    
-    % Conversion 1D -> 2D
-    board1d_to_2d(Board1D, Board2D_Final),
-    write('Board 2D final: '), writeln(Board2D_Final),
-    
-    % Vérifier l'égalité
-    (Board2D_Initial = Board2D_Final ->
-        writeln('✓ Test réussi : les boards sont identiques')
-    ;
-        writeln('✗ Test échoué : les boards sont différents')
-    ).
-
-%%%% Test avec l'IA du tournoi
-test_tournament_old :-
-    writeln('=== Test interface tournoi (ancien) ==='),
-    % Board vide en format 2D
-    Board2D_Empty = [
-        [_,_,_,_,_,_,_],
-        [_,_,_,_,_,_,_],
-        [_,_,_,_,_,_,_],
-        [_,_,_,_,_,_,_],
-        [_,_,_,_,_,_,_],
-        [_,_,_,_,_,_,_]
-    ],
-    writeln('Board initial (2D):'),
-    display_board_2d(Board2D_Empty),
-    
-    % Jouer un coup avec l'IA
-    writeln('L\'IA joue...'),
-    play_tournament_move(Board2D_Empty, 'x', ia_expert_fast, NewBoard2D, Column),
-    
-    format('Coup joué: colonne ~w~n', [Column]),
-    writeln('Board après coup (2D):'),
-    display_board_2d(NewBoard2D),
-    writeln('✓ Test réussi si un coup a été joué').
-
-%%%% Lancer tous les tests
-run_all_tests :-
-    writeln(''),
-    writeln('╔════════════════════════════════════════╗'),
-    writeln('║   TESTS DE CONVERSION DE FORMAT       ║'),
-    writeln('╚════════════════════════════════════════╝'),
-    writeln(''),
-    test_conversion_2d_to_1d,
-    writeln(''),
-    test_conversion_1d_to_2d,
-    writeln(''),
-    test_conversion_roundtrip,
-    writeln(''),
-    test_tournament_interface,
-    writeln(''),
-    test_tournament_speed.
 
 %%%% Vérifie si on peut jouer dans une colonne
 canPlayInColumn(Board, Column) :- 
@@ -1288,189 +893,9 @@ findLowestRowHelper(Board, Column, CurrentRow, Row) :-
      NextRow is CurrentRow + 1, 
      findLowestRowHelper(Board, Column, NextRow, Row)).
 
-%%%% Boucle de jeu principale
-play(_) :- 
-    gameover(Winner), !, 
-    write('Jeu terminé. Gagnant: '), writeln(Winner), 
-    displayBoard.
-
-play(Player) :- 
-    write('Nouveau tour pour: '), writeln(Player),
-    board(Board),
-    displayBoard,
-    selectIA(Player, Board, Column),
-    % Afficher le type de coup joué
-    write('Coup joué: colonne '), write(Column),
-    analyzeMove(Board, Column, Player),
-    writeln(''),
-    findLowestRow(Board, Column, Row),
-    Index is Row * 7 + Column,
-    playMove(Board, Index, NewBoard, Player),
-    applyIt(Board, NewBoard),
-    changePlayer(Player, NextPlayer),
-    play(NextPlayer).
-
-%%%% Analyse et affiche le type de coup
-analyzeMove(Board, Column, Player) :-
-    simulateMove(Board, Column, Player, NewBoard),
-    countTotalMoves(Board, TotalMoves),
-    (winner(NewBoard, Player) ->
-        write(' [🏆 VICTOIRE!]')
-    ; changePlayer(Player, Opponent), findWinningMove(Board, Opponent, Column) ->
-        write(' [🛡️ BLOQUE VICTOIRE]')
-    ; createsFork(Board, Column, Player) ->
-        write(' [⚔️ FOURCHETTE - Double menace!]')
-    ; changePlayer(Player, Opponent), 
-      (allPossibleColumns(Board, Moves), member(Column, Moves), createsFork(Board, Column, Opponent)) ->
-        write(' [🛡️ BLOQUE FOURCHETTE]')
-    ; TotalMoves < 3, Column = 3 ->
-        write(' [📖 Ouverture optimale - Centre]')
-    ; TotalMoves < 4, member(Column, [2,4]) ->
-        write(' [📖 Ouverture - Près du centre]')
-    ; hasSevenShape(NewBoard, Player) ->
-        write(' [🔨 Structure en 7]')
-    ; evaluateConnectivity(NewBoard, Player, Conn), Conn > 10 ->
-        write(' [🔗 Haute connectivité]')
-    ;
-        true
-    ).
-
-%%%% Sélection de l'IA en fonction du joueur
-% Par défaut, utilise IA EXPERT FAST (plus rapide, 5-10 sec par coup)
-selectIA('x', Board, Column) :- ia_expert_fast(Board, Column, 'x').
-selectIA('o', Board, Column) :- ia_expert_fast(Board, Column, 'o').
-
-% ===== CONFIGURATIONS ALTERNATIVES =====
-
-% Pour utiliser l'IA EXPERT complète (LENT : 30 sec - 2 min par coup) :
-% selectIA('x', Board, Column) :- ia_expert(Board, Column, 'x').
-% selectIA('o', Board, Column) :- ia_expert(Board, Column, 'o').
-
-% Pour faire jouer EXPERT FAST vs MCTS :
-% selectIA('x', Board, Column) :- ia_expert_fast(Board, Column, 'x').
-% selectIA('o', Board, Column) :- ia_mcts(Board, Column, 'o').
-
-% Pour faire jouer EXPERT FAST vs MINIMAX :
-% selectIA('x', Board, Column) :- ia_expert_fast(Board, Column, 'x').
-% selectIA('o', Board, Column) :- ia_minimax(Board, Column, 'o').
-
-% Pour faire jouer MCTS vs MINIMAX :
-% selectIA('x', Board, Column) :- ia_mcts(Board, Column, 'x').
-% selectIA('o', Board, Column) :- ia_minimax(Board, Column, 'o').
-
-% Pour faire jouer MINIMAX vs RANDOM :
-% selectIA('x', Board, Column) :- ia_minimax(Board, Column, 'x').
-% selectIA('o', Board, Column) :- ia_random(Board, Column, 'o').
-
-%%%% Joue un coup
-playMove(Board, Index, NewBoard, Player) :- 
-    Board = NewBoard, 
-    nth0(Index, NewBoard, Player).
-
-%%%% Met à jour la base de connaissances
-applyIt(Board, NewBoard) :- 
-    retract(board(Board)), 
-    assert(board(NewBoard)).
-
 %%%% Change de joueur
 changePlayer('x', 'o').
 changePlayer('o', 'x').
-
-%%%% Affiche une valeur du plateau
-printVal(N) :- 
-    board(B), 
-    nth0(N, B, Val), 
-    var(Val), 
-    write('.'), !.
-printVal(N) :- 
-    board(B), 
-    nth0(N, B, Val), 
-    write(Val).
-
-%%%% Affiche le plateau
-displayBoard :-
-    writeln('*-----------------*'),
-    writeln('  0 1 2 3 4 5 6'),
-    printRow(5),
-    printRow(4),
-    printRow(3),
-    printRow(2),
-    printRow(1),
-    printRow(0),
-    writeln('*-----------------*').
-
-printRow(RowNum) :-
-    write('| '),
-    forall(between(0, 6, Col), 
-           (Index is RowNum * 7 + Col, printVal(Index), write(' '))),
-    writeln('|').
-
-%%%% Initialise et démarre le jeu
-init :- 
-    length(Board, 42),
-    retractall(board(_)),
-    retractall(nodes_explored(_)),
-    assert(nodes_explored(0)),
-    assert(board(Board)), 
-    writeln(''),
-    writeln('========================================'),
-    writeln('     PUISSANCE 4 - IA vs IA'),
-    writeln('========================================'),
-    writeln(''),
-    play('x').
-
-%%%% Lance plusieurs parties pour comparer les IA
-% Exemples d'utilisation :
-% ?- benchmark(ia_expert_fast, ia_mcts, 10).
-% ?- benchmark(ia_expert_fast, ia_minimax, 5).
-% ?- benchmark(ia_mcts, ia_minimax, 10).
-% ?- benchmark(ia_expert, ia_expert_fast, 3).  ⚠️ LENT !
-
-benchmark(IA1, IA2, NumGames) :-
-    writeln(''),
-    writeln('=== BENCHMARK DES IA ==='),
-    format('~w (x) vs ~w (o) - ~w parties~n', [IA1, IA2, NumGames]),
-    writeln(''),
-    runBenchmark(IA1, IA2, NumGames, 0, 0, 0).
-
-runBenchmark(_, _, 0, Wins1, Wins2, Draws) :- !,
-    Total is Wins1 + Wins2 + Draws,
-    writeln(''),
-    writeln('=== RÉSULTATS ==='),
-    format('Joueur 1 (x): ~w victoires (~w%)~n', [Wins1, Wins1 * 100 // Total]),
-    format('Joueur 2 (o): ~w victoires (~w%)~n', [Wins2, Wins2 * 100 // Total]),
-    format('Matchs nuls: ~w (~w%)~n', [Draws, Draws * 100 // Total]).
-
-runBenchmark(IA1, IA2, N, Wins1, Wins2, Draws) :-
-    N > 0,
-    format('Partie ~w... ', [N]),
-    length(Board, 42),
-    retractall(board(_)),
-    assert(board(Board)),
-    playBenchmark('x', IA1, IA2, Result),
-    (Result = 'x' -> 
-        NewWins1 is Wins1 + 1, NewWins2 = Wins2, NewDraws = Draws, writeln('Victoire J1')
-    ; Result = 'o' ->
-        NewWins1 = Wins1, NewWins2 is Wins2 + 1, NewDraws = Draws, writeln('Victoire J2')
-    ;
-        NewWins1 = Wins1, NewWins2 = Wins2, NewDraws is Draws + 1, writeln('Match nul')
-    ),
-    N1 is N - 1,
-    runBenchmark(IA1, IA2, N1, NewWins1, NewWins2, NewDraws).
-
-playBenchmark(Player, IA1, IA2, Result) :-
-    (gameover(Winner) ->
-        Result = Winner
-    ;
-        board(Board),
-        (Player = 'x' -> call(IA1, Board, Column, Player) ; call(IA2, Board, Column, Player)),
-        findLowestRow(Board, Column, Row),
-        Index is Row * 7 + Column,
-        playMove(Board, Index, NewBoard, Player),
-        applyIt(Board, NewBoard),
-        changePlayer(Player, NextPlayer),
-        playBenchmark(NextPlayer, IA1, IA2, Result)
-    ).
 
 %%%% Prédicats pour l'analyse des coups possibles
 possibleColumn(Board, Col) :- 
