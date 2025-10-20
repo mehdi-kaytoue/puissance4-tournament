@@ -12,7 +12,7 @@ from datetime import datetime # pour horodater le csv
 SWIPL = 'swipl'  # assume que swipl est dans la variable PATH
 
 ENGINE = 'engine.pl'
-TIME_PER_MOVE = 4.0  # secondes : on donne un budget temps par coup
+TIME_PER_MOVE = 60.0  # secondes : on donne un budget temps par coup
 
 def board_to_prolog(board):
     # board/plateau: une liste liste (6 lignes avec pour chacune 7 éléments)
