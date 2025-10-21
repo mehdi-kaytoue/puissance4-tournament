@@ -654,6 +654,7 @@ isPoisonedMove(Board, Column, Player, Opponent) :-
     member(OpMove, OpponentMoves),
     createsFork(NewBoard, OpMove, Opponent).
 
+:- discontiguous evaluateMovesExpert/5.
 evaluateMovesExpert([], _, _, _, []).
 evaluateMovesExpert([Move|Moves], Board, Player, Depth, [Move-Score|Rest]) :-
     simulateMove(Board, Move, Player, NewBoard),

@@ -582,6 +582,7 @@ expertSearch(Board, Player, Column) :-
      random_member(Column, BestMoves)).
 
 %%%% Évalue les coups avec la version expert (sans affichage)
+:- discontiguous evaluateMovesExpert/5.
 evaluateMovesExpert([], _, _, _, []).
 evaluateMovesExpert([Move|Moves], Board, Player, Depth, [Move-Score|Rest]) :-
     simulateMove(Board, Move, Player, NewBoard),
